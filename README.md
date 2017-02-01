@@ -29,7 +29,9 @@ Use
 -----
 Install and assign to the SPDIF wire.
 
-![analyzer](http://X.github.io/Saleae-SPDIF/SPDIF-analyzer.png)
+![wave_view](images/spdif_wave_view.png)
+![decoder_view](images/spdif_decoder_view.png)
+![menu](images/spdif_analyzer_menu_view.png)
 
 As-is
 ------
