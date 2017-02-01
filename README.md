@@ -31,7 +31,7 @@ Install and assign to the SPDIF wire.
 
 ![wave_view](images/spdif_wave_view.png)
 ![decoder_view](images/spdif_decoder_view.png)
-![menu](images/spdif_analyzer_menu_view.png)
+![menu](images/spdif_analyzer_menu.png)
 
 As-is
 ------
