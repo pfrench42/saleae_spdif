@@ -41,3 +41,5 @@ To-Do
 ------
 The internal command-line analyzer (spdif.c) detects far more errors than the UI and it would be good to see these capabilities brought out.
 Needs a channel-status and validity bits reported in the data table, ideally only changes would be marked.
+Add a realistic signal generator
+
