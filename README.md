@@ -3,6 +3,8 @@ SPDIF Logic Analyzer
 
 This plugin is for use in the [Saleae Logic](http://www.saleae.com/downloads) program to decode captured data from any SPDIF Interface.
 
+LICENSE is GPLv2
+
 So far I've built/run it on 64 bit windows and linux.
 
 Installation
