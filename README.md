@@ -29,6 +29,9 @@ Use
 -----
 Install and assign to the SPDIF wire.
 
+For reliable capture of 48kHz spdif, capture at 25 MHz
+For reliable capture of 192kHz spdif, capture at 100 MHz
+
 ![wave_view](images/spdif_wave_view.png)
 ![decoder_view](images/spdif_decoder_view.png)
 ![menu](images/spdif_analyzer_menu.png)
@@ -39,7 +42,7 @@ This software is provided as-is, with no guarantees, so there.
 
 To-Do
 ------
-The internal command-line analyzer (spdif.c) detects far more errors than the UI and it would be good to see these capabilities brought out.
-Needs a channel-status and validity bits reported in the data table, ideally only changes would be marked.
-Add a realistic signal generator
+* The internal command-line analyzer (spdif.c) detects far more errors than the UI and it would be good to see these capabilities brought out.
+* Needs a channel-status and validity bits reported in the data table, ideally only changes would be marked.
+* Add a realistic signal generator
 
