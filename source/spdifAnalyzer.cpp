@@ -172,7 +172,16 @@ void spdifAnalyzer::sample_callback( uint64_t t, uint64_t tend, enum SpdifFrameT
     }
 
     frame.mData1 = ((int)aud_sample<<4) >> 16;   /* signed 16-bit audio sample */
-    frame.mData2 = aud_sample;                   /* raw SPDIF */
+
+	/* special sequence for embedded AC3 data */
+	if ((0xf872 == m_PrevPCM) && (0x4e1f == frame.mData1)) {
+		/* this looks like an AC3 stream */
+		mResults->AddMarker(mPrevSample, AnalyzerResults::UpArrow, mSettings->mInputChannel);
+		m_AC3_Detected++;
+	}
+	m_PrevPCM = (U16)frame.mData1;
+
+	frame.mData2 = aud_sample;                   /* raw SPDIF */
     frame.mFlags = 0;
     frame.mStartingSampleInclusive = t+1;
     frame.mEndingSampleInclusive = tend;
@@ -181,7 +190,6 @@ void spdifAnalyzer::sample_callback( uint64_t t, uint64_t tend, enum SpdifFrameT
 
     mPrevSample = t;
     mPrevSampleEnd = tend;
-
     mResults->CommitResults();
     ReportProgress( t );
 }

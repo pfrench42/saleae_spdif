@@ -68,6 +68,10 @@ protected: //vars
 	U32 mStartOfStopBitOffset;
 	U32 mEndOfStopBitOffset;
 
+	U16 m_PrevPCM;
+	U16 m_Pad0;
+	U32 m_AC3_Detected;	/* number of times AC3 frame headers have been noticed */
+
     /* "C" bitstream parser library */
     struct SpdifBitstreamAnalyzer *mSba;
     uint64_t                       mSamplesSinceLastBSync;
