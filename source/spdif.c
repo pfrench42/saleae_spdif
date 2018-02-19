@@ -168,6 +168,19 @@ static enum SpdifFrameType sba_FindSync(
                     //printf("m");
                     found_sync = sft_M; /* left  */
                 }
+                else
+                {
+                #ifdef SELF_TEST
+                  printf("bad M sync @%d {%d,%d} [%d %d %d %d]\n",
+                    sba->r_edgenum,
+                    threshold_12,
+                    threshold_23,
+                    sba->edge[(i+0) & SPDIF_ANALYZER_EDGE_MASK].dt,
+                    sba->edge[(i+1) & SPDIF_ANALYZER_EDGE_MASK].dt,
+                    sba->edge[(i+2) & SPDIF_ANALYZER_EDGE_MASK].dt,
+                    sba->edge[(i+3) & SPDIF_ANALYZER_EDGE_MASK].dt );
+                #endif
+                }
             }
             else if ( sba->edge[(i+1) & SPDIF_ANALYZER_EDGE_MASK].dt > threshold_12 )
             {
@@ -180,6 +193,19 @@ static enum SpdifFrameType sba_FindSync(
                     //printf("w");
                     found_sync = sft_W; /* right */
                 }
+                else
+                {
+                #ifdef SELF_TEST
+                  printf("bad W sync @%d {%d,%d} [%d %d %d %d]\n",
+                    sba->r_edgenum,
+                    threshold_12,
+                    threshold_23,
+                    sba->edge[(i+0) & SPDIF_ANALYZER_EDGE_MASK].dt,
+                    sba->edge[(i+1) & SPDIF_ANALYZER_EDGE_MASK].dt,
+                    sba->edge[(i+2) & SPDIF_ANALYZER_EDGE_MASK].dt,
+                    sba->edge[(i+3) & SPDIF_ANALYZER_EDGE_MASK].dt );
+                #endif
+                }
             }
             else
             {
@@ -190,6 +216,19 @@ static enum SpdifFrameType sba_FindSync(
                 {
                     //printf("b");
                     found_sync = sft_B; /* left, B */
+                }
+                else
+                {
+                #ifdef SELF_TEST
+                  printf("bad B sync @%d {%d,%d} [%d %d %d %d]\n",
+                    sba->r_edgenum,
+                    threshold_12,
+                    threshold_23,
+                    sba->edge[(i+0) & SPDIF_ANALYZER_EDGE_MASK].dt,
+                    sba->edge[(i+1) & SPDIF_ANALYZER_EDGE_MASK].dt,
+                    sba->edge[(i+2) & SPDIF_ANALYZER_EDGE_MASK].dt,
+                    sba->edge[(i+3) & SPDIF_ANALYZER_EDGE_MASK].dt );
+                #endif
                 }
             }
         }
@@ -338,6 +377,7 @@ static uint16_t sba_AnalyzeRecentEdges(
     uint64_t        w,r;
     uint16_t        min_dt = 0;
     uint16_t        max_dt = 0;
+    uint16_t        mid_dt = 0;
 
     w = sba->w_edgenum;
     r = sba->r_edgenum;
@@ -360,14 +400,39 @@ static uint16_t sba_AnalyzeRecentEdges(
         r++;
     }
 
-    /* anything larger will be considered two ticks wide 
-     * comparison is always if ( dt > threshold_12 ) 
+    /*
+     *  The clocks pulses are 1, 2, and 3 spdif clocks wide
+     *
+     *  We've just captured the smallest clock pulse and the largest
+     *  which should correspond to the shortest duration 1-clock
+     *  pulse and the longest duration 3-clock pulse.
+     *
+     *  This means the 2 clock width should center between min/max
+     *
+     *  |-min                              max-|
+     *  111                                  333
+     *                    222 - calculated
+     *                     |
+     *          t12                 t23
+     *           |-------------------|     -> solution 1, split the difference
+     *
+     *                  t12 t23
+     *                    |-|              -> solution 2, surround the center by 1 clk
      */
-    *pthreshold_12 = min_dt + 2;
 
-    /* anything smaller will be considered two ticks wide */
-    /* comparison is always if( dt > threshold_23 ) */
-    *pthreshold_23 = max_dt - 3;
+    if ( (max_dt - min_dt) > 9 )
+    {
+      /* same as above but higher precision */
+      mid_dt = (min_dt + max_dt);
+      *pthreshold_12 = ((min_dt << 1) + mid_dt) >> 2;
+      *pthreshold_23 = ((max_dt << 1) + mid_dt) >> 2;
+    }
+    else
+    {
+      mid_dt = (min_dt + max_dt);
+      *pthreshold_12 = (mid_dt - 2) >> 1;
+      *pthreshold_23 = (mid_dt + 2) >> 1;
+    }
 
     /* is there any room for a two-tick width? */
     if ( (int)(*pthreshold_23 - *pthreshold_12) <= 1 )
@@ -420,7 +485,7 @@ int SpdifBitstreamAnalyzer_AddEdge(
 
             if ( (dt12 > 1) || (dt23 > 1) )
             {
-                #if 1
+                #ifdef SELF_TEST
                 printf("thresholds [%d..%d] -> [%d..%d]\n",
                     sba->last_threshold_12,
                     sba->last_threshold_23,
@@ -510,8 +575,14 @@ int SpdifBitstreamAnalyzer_AddEdge(
             }
             else
             {
+              #ifdef SELF_TEST
+                static unsigned int skips = 0;
+                if ( ++skips < 10 )
+                {
                 /* skip forward */
                 printf("no sync [%2d..%2d], skipping @%ld...\n",threshold_12, threshold_23, (unsigned int) sba->edge[ sba->r_edgenum & SPDIF_ANALYZER_EDGE_MASK ].t);
+                }
+              #endif
                 sba->r_edgenum += SPDIF_ANALYZER_SAMPLE_EDGES>>1;
             }
         }
