@@ -63,8 +63,8 @@ U32 spdifSimulationDataGenerator::GenerateSimulationData( U64 largest_sample_req
 
 void spdifSimulationDataGenerator::CreateSerialByte()
 {
-#if 0
-	U32 samples_per_bit = mSimulationSampleRateHz / mSettings->mBitRate;
+#if 1
+	U32 samples_per_bit = mSimulationSampleRateHz / 44100;
 
 	U8 byte = mSerialText[ mStringIndex ];
 	mStringIndex++;
