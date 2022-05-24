@@ -3,4 +3,3 @@ debug/
 .DS_Store
 build/
 .vscode/
-cmake/
